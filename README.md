@@ -72,3 +72,6 @@ Ouvre ensuite <http://127.0.0.1:8000/>.
 
 La configuration fournie est réservée au développement (`DEBUG = True` et clé
 de développement). Ne l’utilise pas telle quelle en production.
+
+## imports des Pokemons
+`..\.venv\Scripts\python.exe manage.py import_pokemon`
