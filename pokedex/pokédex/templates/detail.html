@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}{{ pokemon.nom }} | Pokédex{% endblock %}
+
+{% block content %}
+<main class="max-w-3xl mx-auto p-6">
+    <a href="{% url 'home' %}" class="text-blue-800 hover:underline">← Retour à la liste</a>
+
+    <div class="bg-white rounded-lg shadow p-8 mt-4 grid sm:grid-cols-2 gap-8 items-center">
+        <div class="text-center">
+            <img src="{{ pokemon.image_url }}" alt="{{ pokemon.nom }}" class="mx-auto w-56 h-56">
+        </div>
+        <div>
+            <p class="text-gray-500">#{{ pokemon.pokemon_id }}</p>
+            <h1 class="titre text-xl mb-4">{{ pokemon.nom }}</h1>
+            <p class="mb-6">
+                <span class="type type-{{ pokemon.type1 }}">{{ pokemon.type1 }}</span>
+                {% if pokemon.type2 %}<span class="type type-{{ pokemon.type2 }}">{{ pokemon.type2 }}</span>{% endif %}
+            </p>
+
+            <!-- Statistiques (barres sur 150) -->
+            <p>PV : <b>{{ pokemon.pv }}</b></p>
+            <div class="bg-gray-200 rounded h-3 mb-3"><div class="bg-green-500 h-3 rounded" style="width: {% widthratio pokemon.pv 150 100 %}%; max-width: 100%"></div></div>
+            <p>Attaque : <b>{{ pokemon.attaque }}</b></p>
+            <div class="bg-gray-200 rounded h-3 mb-3"><div class="bg-red-500 h-3 rounded" style="width: {% widthratio pokemon.attaque 150 100 %}%; max-width: 100%"></div></div>
+            <p>Défense : <b>{{ pokemon.defense }}</b></p>
+            <div class="bg-gray-200 rounded h-3 mb-3"><div class="bg-blue-500 h-3 rounded" style="width: {% widthratio pokemon.defense 150 100 %}%; max-width: 100%"></div></div>
+            <p>Vitesse : <b>{{ pokemon.vitesse }}</b></p>
+            <div class="bg-gray-200 rounded h-3 mb-3"><div class="bg-yellow-400 h-3 rounded" style="width: {% widthratio pokemon.vitesse 150 100 %}%; max-width: 100%"></div></div>
+        </div>
+    </div>
+
+    <!-- Passer au Pokémon précédent / suivant -->
+    <div class="flex justify-between mt-6">
+        {% if precedent %}
+            <a href="{% url 'detail' precedent.pokemon_id %}" class="bg-yellow-400 text-blue-900 font-bold border-2 border-blue-900 px-4 py-2 rounded-lg">← {{ precedent.nom }}</a>
+        {% else %}<span></span>{% endif %}
+        {% if suivant %}
+            <a href="{% url 'detail' suivant.pokemon_id %}" class="bg-yellow-400 text-blue-900 font-bold border-2 border-blue-900 px-4 py-2 rounded-lg">{{ suivant.nom }} →</a>
+        {% endif %}
+    </div>
+</main>
+{% endblock %}

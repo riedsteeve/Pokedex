@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Combat | Pokédex{% endblock %}
+
+{% block content %}
+<main class="max-w-4xl mx-auto p-6">
+    <h1 class="titre text-xl text-center mb-6">Combat Pokémon</h1>
+
+    {% if not partie %}
+        <div class="bg-white rounded-lg shadow p-6 text-center">
+            {% if not assez_de_pokemon %}
+                <p>Il n'y a pas encore de Pokémon en base. Lancez d'abord : <code>python manage.py import_pokemon</code></p>
+            {% elif not equipes %}
+                <p class="mb-4">Vous devez d'abord créer une équipe de 5 Pokémon.</p>
+                <a href="{% url 'equipes' %}" class="bg-yellow-400 text-blue-900 font-bold border-2 border-blue-900 px-6 py-3 rounded-lg">Créer une équipe</a>
+            {% else %}
+                <p class="mb-4">Choisissez votre équipe. L'ordinateur reçoit 5 Pokémon tirés au hasard.</p>
+                <form method="post" class="flex justify-center gap-4">
+                    {% csrf_token %}
+                    <select name="equipe" class="border border-gray-300 rounded-lg px-4 py-2">
+                        {% for equipe in equipes %}
+                            <option value="{{ equipe.id }}">{{ equipe.nom }}</option>
+                        {% endfor %}
+                    </select>
+                    <button name="action" value="nouveau"
+                            class="bg-yellow-400 text-blue-900 font-bold border-2 border-blue-900 px-6 py-3 rounded-lg">Lancer le combat</button>
+                </form>
+            {% endif %}
+        </div>
+    {% else %}
+
+        <!-- Les deux Pokémon qui s'affrontent -->
+        <div class="grid grid-cols-2 gap-6 mb-6">
+            <div class="bg-white rounded-lg shadow p-4 text-center">
+                <p class="text-sm text-gray-500">Votre Pokémon</p>
+                {% if actif_joueur %}
+                    <img src="{{ actif_joueur.image_url }}" alt="{{ actif_joueur.nom }}" class="mx-auto w-32 h-32">
+                    <p class="text-xl font-bold">{{ actif_joueur.nom }}</p>
+                    <p>PV : {{ actif_joueur.pv }} / {{ actif_joueur.pv_max }}</p>
+                {% else %}
+                    <p class="text-xl font-bold mt-8">Équipe K.O.</p>
+                {% endif %}
+            </div>
+            <div class="bg-white rounded-lg shadow p-4 text-center">
+                <p class="text-sm text-gray-500">Ordinateur</p>
+                {% if actif_ia %}
+                    <img src="{{ actif_ia.image_url }}" alt="{{ actif_ia.nom }}" class="mx-auto w-32 h-32">
+                    <p class="text-xl font-bold">{{ actif_ia.nom }}</p>
+                    <p>PV : {{ actif_ia.pv }} / {{ actif_ia.pv_max }}</p>
+                {% else %}
+                    <p class="text-xl font-bold mt-8">Équipe K.O.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Les équipes (les Pokémon K.O. sont grisés) -->
+        <div class="grid grid-cols-2 gap-6 mb-6">
+            <div class="flex justify-center">
+                {% for p in partie.joueur %}
+                    <img src="{{ p.image_url }}" alt="{{ p.nom }}" title="{{ p.nom }} ({{ p.pv }} PV)"
+                         class="w-12 h-12 {% if p.pv == 0 %}opacity-25{% endif %}">
+                {% endfor %}
+            </div>
+            <div class="flex justify-center">
+                {% for p in partie.ia %}
+                    <img src="{{ p.image_url }}" alt="{{ p.nom }}" title="{{ p.nom }} ({{ p.pv }} PV)"
+                         class="w-12 h-12 {% if p.pv == 0 %}opacity-25{% endif %}">
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <form method="post" class="flex justify-center gap-4 mb-6">
+            {% csrf_token %}
+            {% if partie.gagnant %}
+                <p class="text-2xl font-bold self-center">
+                    {% if partie.gagnant == "joueur" %}Victoire !{% else %}Défaite...{% endif %}
+                </p>
+                <button name="action" value="abandon"
+                        class="bg-yellow-400 text-blue-900 font-bold border-2 border-blue-900 px-6 py-3 rounded-lg">Nouveau combat</button>
+            {% else %}
+                <button name="action" value="normale"
+                        class="bg-blue-600 text-white px-6 py-3 rounded-lg">Attaque normale</button>
+                <button name="action" value="puissante"
+                        class="bg-orange-500 text-white px-6 py-3 rounded-lg">Attaque puissante (x2, 50 %)</button>
+                <button name="action" value="abandon"
+                        class="bg-gray-300 px-6 py-3 rounded-lg">Abandonner</button>
+            {% endif %}
+        </form>
+
+        <!-- Journal du combat (le plus récent en haut) -->
+        <div class="bg-white rounded-lg shadow p-4">
+            <p class="font-bold mb-2">Journal du combat</p>
+            {% for ligne in journal %}
+                <p>{{ ligne }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+</main>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Équipes | Pokédex{% endblock %}
+
+{% block content %}
+<main class="max-w-5xl mx-auto p-6">
+    <h1 class="titre text-xl mb-6">Mes équipes</h1>
+
+    <!-- Formulaire de création d'une équipe -->
+    <form method="post" class="bg-white rounded-lg shadow p-6 mb-8">
+        {% csrf_token %}
+        <h2 class="text-xl font-bold mb-4">Créer une équipe de 5 Pokémon</h2>
+
+        {% if erreur %}
+            <p class="bg-red-100 text-red-700 rounded-lg px-4 py-2 mb-4">{{ erreur }}</p>
+        {% endif %}
+
+        <input type="text" name="nom" placeholder="Nom de l'équipe" required
+               class="w-full border border-gray-300 rounded-lg px-4 py-2 mb-4">
+
+        <div class="grid sm:grid-cols-5 gap-2 mb-4">
+            {% for i in "12345" %}
+                <select name="pokemon{{ i }}" required class="border border-gray-300 rounded-lg px-2 py-2">
+                    <option value="">Pokémon {{ i }}</option>
+                    {% for pokemon in tous_les_pokemons %}
+                        <option value="{{ pokemon.pokemon_id }}">#{{ pokemon.pokemon_id }} {{ pokemon.nom }}</option>
+                    {% endfor %}
+                </select>
+            {% endfor %}
+        </div>
+
+        <button class="bg-yellow-400 text-blue-900 font-bold border-2 border-blue-900 px-6 py-2 rounded-lg">Enregistrer l'équipe</button>
+    </form>
+
+    <!-- Liste des équipes enregistrées -->
+    {% for equipe in equipes %}
+        <div class="bg-white rounded-lg shadow p-4 mb-4">
+            <div class="flex justify-between items-center mb-2">
+                <h2 class="text-xl font-bold">{{ equipe.nom }}</h2>
+                <form method="post" action="{% url 'supprimer_equipe' equipe.id %}">
+                    {% csrf_token %}
+                    <button class="text-red-700 hover:underline">Supprimer</button>
+                </form>
+            </div>
+            <div class="grid grid-cols-5 gap-2">
+                {% for pokemon in equipe.pokemons.all %}
+                    <a href="{% url 'detail' pokemon.pokemon_id %}" class="text-center">
+                        <img src="{{ pokemon.image_url }}" alt="{{ pokemon.nom }}" class="mx-auto w-20 h-20">
+                        <p class="text-sm">{{ pokemon.nom }}</p>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    {% empty %}
+        <p class="text-center text-gray-600">Aucune équipe pour l'instant. Créez-en une avec le formulaire ci-dessus.</p>
+    {% endfor %}
+</main>
+{% endblock %}

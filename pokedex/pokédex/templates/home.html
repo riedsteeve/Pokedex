@@ -1,9 +1,58 @@
 {% extends "base.html" %}
 
-{% block title %}Accueil | Pokédex{% endblock %}
+{% block title %}Pokémon | Pokédex{% endblock %}
 
 {% block content %}
-<main class="flex min-h-screen items-center justify-center">
-    <h1 class="text-3xl font-bold">Bienvenue sur le Pokédex</h1>
+<main class="max-w-5xl mx-auto p-6">
+
+    <!-- Barre de recherche -->
+    <form method="get" class="flex gap-2 mb-6">
+        <input type="text" name="q" value="{{ recherche }}" placeholder="Rechercher un Pokémon par son nom..."
+               class="flex-1 border border-gray-300 rounded-lg px-4 py-2 bg-white">
+        <button class="bg-yellow-400 text-blue-900 font-bold border-2 border-blue-900 px-6 py-2 rounded-lg">Rechercher</button>
+        {% if recherche %}
+            <a href="{% url 'home' %}" class="bg-gray-300 px-4 py-2 rounded-lg">Effacer</a>
+        {% endif %}
+    </form>
+
+    {% if recherche %}
+        <p class="mb-4">{{ page.paginator.count }} résultat(s) pour « {{ recherche }} »</p>
+    {% endif %}
+
+    <!-- Grille des Pokémon -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-4">
+        {% for pokemon in page %}
+            <a href="{% url 'detail' pokemon.pokemon_id %}"
+               class="bg-white rounded-lg shadow p-4 text-center hover:shadow-lg hover:-translate-y-1 transition">
+                <img src="{{ pokemon.image_url }}" alt="{{ pokemon.nom }}" class="mx-auto w-24 h-24">
+                <p class="text-sm text-gray-500">#{{ pokemon.pokemon_id }}</p>
+                <p class="font-bold">{{ pokemon.nom }}</p>
+                <p>
+                    <span class="type type-{{ pokemon.type1 }}">{{ pokemon.type1 }}</span>
+                    {% if pokemon.type2 %}<span class="type type-{{ pokemon.type2 }}">{{ pokemon.type2 }}</span>{% endif %}
+                </p>
+            </a>
+        {% empty %}
+            <p class="col-span-full text-center">
+                Aucun Pokémon trouvé.
+                {% if not recherche %}Lancez d'abord : <code>python manage.py import_pokemon</code>{% endif %}
+            </p>
+        {% endfor %}
+    </div>
+
+    <!-- Boutons Précédent / Suivant -->
+    {% if page.paginator.num_pages > 1 %}
+        <div class="flex justify-center items-center gap-4 mt-8">
+            {% if page.has_previous %}
+                <a href="?page={{ page.previous_page_number }}&q={{ recherche|urlencode }}"
+                   class="bg-yellow-400 text-blue-900 font-bold border-2 border-blue-900 px-4 py-2 rounded-lg">Précédent</a>
+            {% endif %}
+            <span>Page {{ page.number }} / {{ page.paginator.num_pages }}</span>
+            {% if page.has_next %}
+                <a href="?page={{ page.next_page_number }}&q={{ recherche|urlencode }}"
+                   class="bg-yellow-400 text-blue-900 font-bold border-2 border-blue-900 px-4 py-2 rounded-lg">Suivant</a>
+            {% endif %}
+        </div>
+    {% endif %}
 </main>
 {% endblock %}
