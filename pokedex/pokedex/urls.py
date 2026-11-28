@@ -1,24 +1,15 @@
-"""
-URL configuration for pokedex project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/6.1/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
+"""Adresses (URL) du site et la vue Django qui répond à chacune."""
 from django.contrib import admin
 from django.urls import path
-from pokédex.views import home
+
+from pokédex.views import detail, equipes, home, supprimer_equipe
+from pokédex.views_combat import combat
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home, name='home'),
+    path('pokemon/<int:pokemon_id>/', detail, name='detail'),
+    path('equipes/', equipes, name='equipes'),
+    path('equipes/<int:equipe_id>/supprimer/', supprimer_equipe, name='supprimer_equipe'),
+    path('combat/', combat, name='combat'),
 ]
